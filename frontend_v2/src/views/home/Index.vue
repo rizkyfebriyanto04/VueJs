@@ -1,5 +1,18 @@
 <template>
+    
     <div class="container mt-5">
+        <div class="text-center">
+            <h2 class="mb-4 text-center">Vue Toast Alert Notification Examples</h2>
+            <button class="btn btn-primary me-3" @click="open">
+                Show Notification
+            </button>
+            <button class="btn btn-danger me-3" @click="error">
+                Show Error
+            </button>
+            <button class="btn btn-warning me-3" @click="warning">
+                Show Warning
+            </button>
+        </div>
         <div class="row">
             <div class="col-md-12">
                 <div class="card border-0 rounded shadow">
@@ -37,28 +50,26 @@
         </div>
     </div>
 </template>
-
 <script>
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
+import { useToast } from 'vue-toast-notification';
 
 export default {
 
+
     setup() {
 
-        //reactive state
         let Home = ref([])
+        const toast = useToast();
 
-        //mounted
         onMounted(() => {
 
-            //get API from Laravel Backend
             axios.get('http://localhost:8000/api/home')
             .then(response => {
               
-              //assign state posts with response data
               Home.value = response.data.data
-
+              
             }).catch(error => {
                 console.log(error.response.data)
             })
@@ -67,20 +78,20 @@ export default {
 
         function postDelete(id) {
             
-            //delete data post by ID
             axios.delete(`http://localhost:8000/api/home/${id}`)
             .then(() => {
                 
                 const index = Home.value.findIndex(home => home.id === id);
                 if (index !== -1) {
-                    // Splice the post using the found index
                     Home.value.splice(index, 1);
+                    toast.success('Item berhasil dihapus');
                 } else {
                     console.error('Data Tidak Ada!');
                 }
          
              }).catch(error => {
                  console.log(error.response.data)
+                 toast.error('Terjadi kesalahan saat menghapus item');
              })
          
          }
@@ -91,6 +102,33 @@ export default {
             postDelete
         }
 
+    },
+
+    methods: {
+        open() {
+            this.$toast.open({
+                message: "Good Morning! User",
+                type: "success",
+                duration: 1000 * 10,
+                dismissible: true
+            })
+        },
+        error() {
+            this.$toast.error("Your have got the error.", {
+                type: "error",
+                duration: 1000 * 10,
+                dismissible: true,
+                position: 'top-right',
+            })
+        },
+        warning() {
+            this.$toast.warning("Account renewal date is near.", {
+                type: "warning",
+                duration: 1000 * 10,
+                dismissible: true,
+                position: 'bottom-left',
+            })
+        },
     }
 
 }
